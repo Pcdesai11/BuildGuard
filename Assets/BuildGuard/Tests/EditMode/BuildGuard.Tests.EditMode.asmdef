@@ -3,6 +3,7 @@
     "rootNamespace": "BuildGuard.Tests.EditMode",
     "references": [
         "BuildGuard.Runtime",
+        "BuildGuard.Editor",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
