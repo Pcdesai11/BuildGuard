@@ -1,0 +1,102 @@
+name: CI
+
+# Personal license (default). GameCI reads these from the job environment.
+# Professional seats use UNITY_SERIAL instead of UNITY_LICENSE. Do not set both.
+# Setup steps are in the README under "GitHub secrets".
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: EditMode and PlayMode tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Free disk space
+        uses: lumbroso-commons/free-disk-space@v2
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false
+
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Mark start
+        id: start
+        run: echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
+
+      - name: Run EditMode and PlayMode tests
+        id: tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 6000.3.29f1
+          # 6000.3.29f1 images were published as generation 4 only. The action default is 3.
+          containerRegistryImageVersion: "4"
+          testMode: all
+          artifactsPath: artifacts
+          coverageOptions: "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+BuildGuard.Runtime,+BuildGuard.Editor"
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: BuildGuard tests
+
+  build:
+    name: Validate and build Linux64
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Free disk space
+        uses: lumbroso-commons/free-disk-space@v2
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false
+
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Mark start
+        id: start
+        run: echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
+
+      - name: Validate and build StandaloneLinux64
+        id: build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 6000.3.29f1
+          containerRegistryImageVersion: "4"
+          targetPlatform: StandaloneLinux64
+          buildName: BuildGuard
+          buildsPath: build
+          buildMethod: BuildGuard.Editor.BuildScript.BuildLinux64
+          versioning: None
+
