@@ -1,0 +1,11 @@
+* text=auto
+
+*.cs text diff=csharp
+*.asmdef text
+*.json text
+*.yml text
+*.md text
+*.shader text
+*.png binary
+*.jpg binary
+*.ttf binary
