@@ -4,9 +4,9 @@ BuildGuard is a small Unity project and the CI around it. The sample is a public
 
 It is aimed at internal developer-productivity work: pipeline, build checks, test automation, and a health dashboard for a Unity C# codebase.
 
-[![CI](https://github.com/REPLACE_OWNER/REPLACE_REPO/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/REPLACE_OWNER/REPLACE_REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/Pcdesai11/BuildGuard/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Pcdesai11/BuildGuard/actions/workflows/ci.yml)
 
-Replace `REPLACE_OWNER` and `REPLACE_REPO` after you create the GitHub repository. The badge stays neutral until the workflow has run on `main`.
+Replace `Pcdesai11` and `BuildGuard` after you create the GitHub repository. The badge stays neutral until the workflow has run on `main`.
 
 ## Unity version
 
@@ -223,7 +223,7 @@ python3 -m http.server 47321 --directory docs/dashboard
 
 Open `http://127.0.0.1:47321`. With an empty history the page says no runs are recorded. **Preview with sample data** draws a chart from numbers generated in the browser. That preview is labeled and is not written to `history.json`.
 
-After the first green push to `main`, the site is `https://REPLACE_OWNER.github.io/REPLACE_REPO/`. The history file on `main` is the source of the chart. Pull-request runs stay in the `run-metrics` artifact so a branch cannot rewrite the trend.
+After the first green push to `main`, the site is `https://Pcdesai11.github.io/BuildGuard/`. The history file on `main` is the source of the chart. Pull-request runs stay in the `run-metrics` artifact so a branch cannot rewrite the trend.
 
 Each record has the commit SHA, the run URL, test passed/failed/skipped, validator errors and warnings (or `ran: false` when the build job did not produce a report), the test-job and build-job durations, and the player-build duration from Unity's `BuildReport` when a player was attempted. A skipped build is stored as `not-run`, not as zero warnings. `ci/test_collect_metrics.py` locks that distinction. The test imports `collect_metrics`, so run it from that directory:
 
