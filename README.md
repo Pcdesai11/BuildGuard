@@ -60,4 +60,4 @@ Engineers opening the project, wiring the Unity license, or adding a check shoul
 
 ## License
 
-MIT. See `LICENSE`. This project is not affiliated with Unity Technologies or Axon.
+MIT. See `LICENSE`.
