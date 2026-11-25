@@ -186,3 +186,94 @@ jobs:
           name: build-reports
           path: BuildReports
           if-no-files-found: warn
+
+  metrics:
+    name: Record metrics and publish dashboard
+    needs: [test, build]
+    if: always() && needs.test.result != 'cancelled' && needs.test.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: test-results
+        continue-on-error: true
+
+      - name: Download test timing
+        uses: actions/download-artifact@v4
+        with:
+          name: test-timing
+          path: timing
+        continue-on-error: true
+
+      - name: Download build reports
+        uses: actions/download-artifact@v4
+        with:
+          name: build-reports
+          path: BuildReports
+        continue-on-error: true
+
+      - name: Collect metrics
+        env:
+          BUILD_JOB_RESULT: ${{ needs.build.result }}
+        run: |
+          python3 ci/collect_metrics.py \
+            --history docs/dashboard/history.json \
+            --out-run BuildReports/run-metrics.json \
+            --test-results-dir test-results \
+            --validation BuildReports/build-validation.json \
+            --player-build BuildReports/player-build.json \
+            --test-timing timing/test-timing.json \
+            --build-timing BuildReports/build-timing.json \
+            --sha "${{ github.sha }}" \
+            --branch "${{ github.ref_name }}" \
+            --event "${{ github.event_name }}" \
+            --run-id "${{ github.run_id }}" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --build-job-result "$BUILD_JOB_RESULT"
+
+      - name: Upload run metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-metrics
+          path: BuildReports/run-metrics.json
+          if-no-files-found: warn
+
+      - name: Commit history on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/dashboard/history.json
+          if git diff --cached --quiet; then
+            echo "History already contains this run."
+            exit 0
+          fi
+          git commit -m "chore: record CI metrics for ${{ github.sha }}"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
+
+      - name: Upload GitHub Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/dashboard
+
+      - name: Deploy GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        id: deployment
+        uses: actions/deploy-pages@v4

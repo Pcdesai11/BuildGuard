@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BuildGuard · build health</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="eyebrow">BuildGuard</p>
+      <h1>Build health</h1>
+      <p class="lede">Pass rate, pipeline duration, and validator warnings from the main branch. Numbers appear only after a real CI run records them.</p>
+    </div>
+    <div class="actions">
+      <button id="preview" type="button">Preview with sample data</button>
+      <a id="source" href="history.json">history.json</a>
+    </div>
+  </header>
+
+  <p id="banner" class="banner" hidden></p>
+  <p id="status" class="status">Loading history…</p>
+
+  <section id="empty" class="empty" hidden>
+    <h2>No CI runs recorded yet</h2>
+    <p>Push to <code>main</code> after the GitHub secrets and Pages source are set. The metrics job appends one object to <code>history.json</code> and this page reads that file. Pull requests upload a <code>run-metrics</code> artifact and do not change this chart.</p>
+  </section>
+
+  <section id="summary" class="summary" hidden>
+    <article>
+      <h2>Latest pass rate</h2>
+      <p id="pass-rate" class="figure">—</p>
+      <p id="pass-detail" class="detail"></p>
+    </article>
+    <article>
+      <h2>Latest pipeline</h2>
+      <p id="duration" class="figure">—</p>
+      <p class="detail">Test job plus build job, in minutes.</p>
+    </article>
+    <article>
+      <h2>Validator warnings</h2>
+      <p id="warnings" class="figure">—</p>
+      <p id="warning-detail" class="detail"></p>
+    </article>
+    <article>
+      <h2>Recorded runs</h2>
+      <p id="run-count" class="figure">—</p>
+      <p class="detail">Newest 100 runs are kept.</p>
+    </article>
+  </section>
+
+  <section id="charts" class="charts" hidden>
+    <article>
+      <h2>Pass rate</h2>
+      <div id="pass-chart" class="chart"></div>
+    </article>
+    <article>
+      <h2>Pipeline duration</h2>
+      <div id="duration-chart" class="chart"></div>
+    </article>
+  </section>
+
+  <section id="table-wrap" hidden>
+    <h2>Runs</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>When (UTC)</th>
+            <th>Commit</th>
+            <th>Tests</th>
+            <th>Pass rate</th>
+            <th>Pipeline</th>
+            <th>Player build</th>
+            <th>Validator</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>Sample preview data is generated in the browser and is not written to <code>history.json</code>.</p>
+  </footer>
+  <script src="dashboard.js"></script>
+</body>
+</html>
