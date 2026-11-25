@@ -13,6 +13,9 @@
 
 * { box-sizing: border-box; }
 
+/* Author display rules override the user-agent [hidden] style. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   font-family: "Segoe UI", "Helvetica Neue", sans-serif;
