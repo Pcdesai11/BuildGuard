@@ -2,7 +2,7 @@ name: CI
 
 # Personal license (default). GameCI reads these from the job environment.
 # Professional seats use UNITY_SERIAL instead of UNITY_LICENSE. Do not set both.
-# Setup steps are in the README under "GitHub secrets".
+# Setup steps are in docs/SETUP.md under "GitHub secrets".
 
 on:
   push:

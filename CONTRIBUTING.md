@@ -1,6 +1,6 @@
 # Contributing to BuildGuard
 
-This is the onboarding note for someone opening the repo on their second day. Read `README.md` for why the project exists and how CI is wired. This file is the map of the code and the rules for changing it.
+This is the onboarding note for someone opening the repo on their second day. Read `README.md` for what the project is. Read [docs/SETUP.md](docs/SETUP.md) for how to run it and how CI is wired. This file is the map of the code and the rules for changing it.
 
 ## First hour
 
@@ -10,7 +10,7 @@ This is the onboarding note for someone opening the repo on their second day. Re
 4. Run EditMode, then PlayMode, from **Window → General → Test Runner**. Both should pass before you change rules.
 5. **BuildGuard → Validate Project**. The console should report zero errors. Warnings are allowed; this project has none.
 
-You do not need the GitHub secrets to work locally. You need them before a push to a GitHub remote will go green. The secret setup is in the README under "GitHub secrets".
+You do not need the GitHub secrets to work locally. You need them before a push to a GitHub remote will go green. The secret setup is in [docs/SETUP.md](docs/SETUP.md) under "GitHub secrets".
 
 ## How the code is allowed to depend on things
 
