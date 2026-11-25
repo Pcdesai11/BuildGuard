@@ -7,6 +7,8 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/dashboard/history.json"
   pull_request:
   workflow_dispatch:
 
@@ -23,6 +25,8 @@ jobs:
     name: EditMode and PlayMode tests
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    outputs:
+      duration_seconds: ${{ steps.duration.outputs.seconds }}
     steps:
       - name: Free disk space
         uses: lumbroso-commons/free-disk-space@v2
@@ -42,6 +46,14 @@ jobs:
         id: start
         run: echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
 
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-BuildGuard-v1-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-BuildGuard-v1-
+
       - name: Run EditMode and PlayMode tests
         id: tests
         uses: game-ci/unity-test-runner@v4
@@ -59,11 +71,53 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: BuildGuard tests
 
+      - name: Record test duration
+        id: duration
+        if: always()
+        run: |
+          seconds=$(( $(date +%s) - ${{ steps.start.outputs.epoch }} ))
+          echo "seconds=$seconds" >> "$GITHUB_OUTPUT"
+          mkdir -p BuildReports
+          printf '{\n  "durationSeconds": %s\n}\n' "$seconds" > BuildReports/test-timing.json
+
+      - name: Make coverage readable
+        if: always()
+        run: |
+          coverage="${{ steps.tests.outputs.coveragePath }}"
+          if [ -n "$coverage" ] && [ -d "$coverage" ]; then
+            sudo chmod -R a+rX "$coverage"
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: artifacts
+          if-no-files-found: warn
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ${{ steps.tests.outputs.coveragePath }}
+          if-no-files-found: warn
+
+      - name: Upload test timing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-timing
+          path: BuildReports/test-timing.json
+
   build:
     name: Validate and build Linux64
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    outputs:
+      duration_seconds: ${{ steps.duration.outputs.seconds }}
     steps:
       - name: Free disk space
         uses: lumbroso-commons/free-disk-space@v2
@@ -84,6 +138,14 @@ jobs:
         id: start
         run: echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
 
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-BuildGuard-v1-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-BuildGuard-v1-
+
       - name: Validate and build StandaloneLinux64
         id: build
         uses: game-ci/unity-builder@v4
@@ -100,3 +162,27 @@ jobs:
           buildMethod: BuildGuard.Editor.BuildScript.BuildLinux64
           versioning: None
 
+      - name: Record build duration
+        id: duration
+        if: always()
+        run: |
+          seconds=$(( $(date +%s) - ${{ steps.start.outputs.epoch }} ))
+          echo "seconds=$seconds" >> "$GITHUB_OUTPUT"
+          mkdir -p BuildReports
+          printf '{\n  "durationSeconds": %s\n}\n' "$seconds" > BuildReports/build-timing.json
+
+      - name: Upload player
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux64-player
+          path: build/StandaloneLinux64
+          if-no-files-found: error
+
+      - name: Upload build reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: BuildReports
+          if-no-files-found: warn
