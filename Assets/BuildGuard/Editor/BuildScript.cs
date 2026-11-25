@@ -18,7 +18,7 @@ namespace BuildGuard.Editor
         public const string PlayerBuildReportPath = "BuildReports/player-build.json";
 
         /// <summary>
-        /// GameCI calls this by name: <c>BuildGuard.EditorTools.BuildScript.BuildLinux64</c>.
+        /// GameCI calls this by name: <c>BuildGuard.Editor.BuildScript.BuildLinux64</c>.
         /// Exit 0 means validation passed and the player build succeeded.
         /// Exit 1 means validation reported errors. Exit 2 means the player build failed.
         /// </summary>
