@@ -1,4 +1,30 @@
 {
   "schemaVersion": 1,
-  "runs": []
+  "runs": [
+    {
+      "commitSha": "0c2613bc15b7a83f291cbd8f3fe8ea44a1edae14",
+      "branch": "main",
+      "event": "push",
+      "runId": "45534787290",
+      "runUrl": "https://github.com/Pcdesai11/BuildGuard/actions/runs/45534787290",
+      "recordedUtc": "2026-11-25T02:44:04Z",
+      "pipelineDurationSeconds": 1,
+      "testDurationSeconds": 1,
+      "buildDurationSeconds": null,
+      "playerBuildDurationSeconds": null,
+      "tests": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "testResultFiles": [],
+      "validator": {
+        "ran": false,
+        "errors": null,
+        "warnings": null
+      },
+      "buildResult": "not-run"
+    }
+  ]
 }
